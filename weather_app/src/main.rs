@@ -8,6 +8,11 @@ fn main() {
 
     ask_city_name(&mut city_name);
     let city_details_json: Value = get_city_details_as_json(&mut city_name);
+    let city_lat_lon: (String, String) = get_city_lat_lon(&city_details_json);
+
+    // TODO:
+    // Check that city_lat_lon contains valid values (not null).
+    // Send a request to https://api.open-meteo.com/v1/ for weather forecast using city_lat_lon as parameters
 }
 
 fn ask_city_name(city_name: &mut String) {
@@ -36,6 +41,12 @@ fn get_city_details_as_json(city_name: &mut String) -> Value {
     let city_details: String = reqwest::blocking::get(request_url).unwrap().text().expect("Failed to get payload");
     let city_details_json: Value =  serde_json::from_str(city_details.as_str()).unwrap();
     return city_details_json;
+}
+
+fn get_city_lat_lon(city_details_json: &Value) -> (String, String) {
+    let city_lat: String = city_details_json["results"][0]["latitude"].to_string();
+    let city_lon: String = city_details_json["results"][0]["longitude"].to_string();
+    return (city_lat, city_lon);
 }
 
 fn is_string_alphabetic(check_str: String) -> bool {
